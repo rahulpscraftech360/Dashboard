@@ -53,26 +53,7 @@ const AppInfo = () => {
   console.log("subscriptionInfo<<<<<", subscriptionInfo);
   const ipcRenderer = window.electron?.ipcRenderer || {}; // ipcRenderer allowing for messaging between the renderer process (the web page) and the main process.
   console.log("window", window.electron.ipcRenderer);
-  useEffect(() => {
-    const fetchData = async () => {
-      await getApp();
-    };
 
-    fetchData();
-  }, []);
-
-  useEffect(() => {
-    console.log("Here useEffect get subscription details");
-    const fetchData = async () => {
-      getSubscriptionInfo();
-    };
-
-    fetchData();
-  }, [app, subscriptionInfo]);
-  useEffect(() => {
-    console.log("Here isOnline useEffect");
-    getApp();
-  }, [appId, open]);
   useEffect(() => {
     const goOnline = () => setIsOnline(true);
     const goOffline = () => setIsOnline(false);
@@ -86,70 +67,6 @@ const AppInfo = () => {
       window.removeEventListener("offline", goOffline);
     };
   }, []);
-  const getSubscriptionInfo = async () => {
-    console.log("call for getSubscriptionInfo", Organization, appId);
-    try {
-      let subscription = await axios.get(`/appSubscribe/${appId}`, {
-        headers: {
-          Organization: Organization,
-        },
-      });
-      console.log("heree");
-      console.log("subscription>>>", subscription);
-      if (subscription.data === null) {
-        setIsActiveSubScription(false);
-      }
-
-      if (subscription.data) {
-        console.log("setting subscription", subscription.data, "<<<<<");
-        setApiKeyInfo(subscription.data.apiKeyInfo);
-
-        console.log(
-          "apiKeyInfo<<<<<<<<<<<<<<<<<<<<<<",
-          apiKeyInfo
-          // subscription.data.data.apiKeyInfo.valid
-        );
-      }
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
-  const getApp = async () => {
-    // console.log("inside getapp", organization);
-    try {
-      console.log("fetchingn app data", appId);
-      let response = await axios.get(`/apps/${appId}`, {
-        // headers: {
-        //   Organization: organization,
-        // },
-      });
-      const app = response.data;
-      console.log("printing app data");
-      console.log(">>>>>>apps>>> ", app);
-      setApp(app);
-      console.log("appp", app);
-
-      // setSubscriptionInfo(apps.data.appsubscription.apiKeyInfo);
-      //console.log("subscriptionInfo", subscriptionInfo);
-      // if (subscriptionInfo?.valid === true) {
-      //   setIsActiveSubScription(true);
-      //   console.log("valid", isActiveSubScription);
-      // } else {
-      //   setIsActiveSubScription(false);
-      // }
-      // if (app) {
-      //   // Ensure `app` is not null
-      //   setFormData((prevFormData) => ({
-      //     ...prevFormData,
-      //     appName: app.appName, // Update `appName` in formData
-      //   }));
-      // }
-      console.log("app >>>", app);
-    } catch (err) {
-      console.log(err);
-    }
-  };
 
   const [formData, setFormData] = useState({
     appId: appId,
@@ -269,7 +186,21 @@ const AppInfo = () => {
     if (currentTime < decoded.end) {
       console.log("API key is valid and not expired.");
       alert("valid api");
-      window.location.href = "http://localhost:3006";
+      // window.location.href = "http://localhost:3006";
+      const command = `"C:\\Users\\RANJITH\\AppData\\Local\\Programs\\electron-app\\electron-app.exe"`;
+
+      if (ipcRenderer) {
+        console.log("ipcRenderer is present");
+      } else {
+        console.log("ipcRenderer is not present");
+      }
+
+      if (typeof ipcRenderer.send === "function") {
+        console.log("hereeeee");
+        ipcRenderer.send("open-app", command);
+      } else {
+        console.log("not a function");
+      }
     } else {
       console.log("API key has expired.");
       alert("API key has expired.");
@@ -282,260 +213,15 @@ const AppInfo = () => {
 
       <div className=" w-96">
         {" "}
-        {app ? (
-          <Card className=" p-2 m-2 flex flex-col justify-center items-center">
-            <CardHeader>
-              <CardTitle>{app.appName}</CardTitle>
-              <CardDescription>{app.description}</CardDescription>
-            </CardHeader>
-            <CardContent>Relevant data for App 1</CardContent>
-            {isOnline ? <>Online Status: Online</> : <>Online Status:Offline</>}
-            {isOnline ? (
-              <>
-                {apiKeyInfo?.valid === false && (
-                  <Dialog open={open} onOpenChange={setOpen}>
-                    <DialogTrigger asChild>
-                      <Button variant="outline">Subscribe</Button>
-                    </DialogTrigger>
-                    <DialogContent className="sm:max-w-[425px]">
-                      <DialogHeader>
-                        <DialogTitle>Select subscription Dates</DialogTitle>
-                        <DialogDescription>
-                          Please select the start and end dates for your
-                          subscription.
-                        </DialogDescription>
-                      </DialogHeader>
-                      <div className="grid gap-4 py-4">
-                        <div className="grid grid-cols-4 items-center gap-4">
-                          <Label className="text-right" htmlFor="start-date">
-                            Start Date
-                          </Label>
-                          <Input
-                            onChange={handleChange}
-                            className="col-span-3"
-                            id="startDate"
-                            type="date"
-                            name="startDate"
-                            value={formData.startDate}
-                          />
-                        </div>
-                        <div className="grid grid-cols-4 items-center gap-4">
-                          <Label className="text-right" htmlFor="end-date">
-                            End Date
-                          </Label>
-                          <Input
-                            onChange={handleChange}
-                            className="col-span-3"
-                            id="endDate"
-                            name="endDate"
-                            value={formData.endDate}
-                            type="date"
-                          />
-                        </div>
-                      </div>
-                      <DialogFooter>
-                        <Button onClick={() => GenerateApiKey()} type="submit">
-                          Generate ApiKey
-                        </Button>
-                      </DialogFooter>
-                    </DialogContent>
-                  </Dialog>
-                )}
-              </>
-            ) : (
-              <></>
-            )}
+        <Card className=" p-2 m-2 flex flex-col justify-center items-center">
+          <CardHeader>
+            <CardTitle>My Super APP</CardTitle>
+            <CardDescription>description</CardDescription>
+          </CardHeader>
+          <CardContent>Relevant data for App 1</CardContent>
+          {isOnline ? <>Online Status: Online</> : <>Online Status:Offline</>}
 
-            {isOnline ? (
-              <>
-                {apiKeyInfo?.valid === true && (
-                  <Dialog open={open} onOpenChange={setOpen}>
-                    <DialogTrigger asChild>
-                      <Button variant="outline">Open</Button>
-                    </DialogTrigger>
-                    <DialogContent className="sm:max-w-[425px]">
-                      <DialogHeader>
-                        <DialogTitle>confirm Opening the app?</DialogTitle>
-                      </DialogHeader>
-
-                      <DialogFooter className="m-1 p-1 gap-3">
-                        <Button
-                          className="bg-emerald-500"
-                          onClick={() => OpenApp()}
-                          type="submit"
-                        >
-                          Open
-                        </Button>
-                        <Button
-                          className="bg-emerald-500"
-                          onClick={() => OpenWeb()}
-                          type="submit"
-                        >
-                          Open Web
-                        </Button>
-                      </DialogFooter>
-                    </DialogContent>
-                  </Dialog>
-                )}
-              </>
-            ) : (
-              <>
-                {" "}
-                <Dialog open={open} onOpenChange={setOpen}>
-                  <DialogTrigger asChild>
-                    <Button variant="outline">Subscribe</Button>
-                  </DialogTrigger>
-                  <DialogContent className="sm:max-w-[425px]">
-                    <DialogHeader>
-                      <DialogTitle>Select subscription Dates</DialogTitle>
-                      <DialogDescription>
-                        Please select the start and end dates for your
-                        subscription.
-                      </DialogDescription>
-                    </DialogHeader>
-                    <div className="grid gap-4 py-4">
-                      <div className="grid grid-cols-4 items-center gap-4">
-                        <Label className="text-right" htmlFor="start-date">
-                          Start Date
-                        </Label>
-                        <Input
-                          onChange={handleChange}
-                          className="col-span-3"
-                          id="startDate"
-                          type="date"
-                          name="startDate"
-                          value={formData.startDate}
-                        />
-                      </div>
-                      <div className="grid grid-cols-4 items-center gap-4">
-                        <Label className="text-right" htmlFor="end-date">
-                          End Date
-                        </Label>
-                        <Input
-                          onChange={handleChange}
-                          className="col-span-3"
-                          id="endDate"
-                          name="endDate"
-                          value={formData.endDate}
-                          type="date"
-                        />
-                      </div>
-                    </div>
-                    <DialogFooter>
-                      <Button onClick={() => GenerateApiKey()} type="submit">
-                        Generate ApiKey
-                      </Button>
-                    </DialogFooter>
-                  </DialogContent>
-                </Dialog>{" "}
-              </>
-            )}
-            {!isOnline ? (
-              <>
-                <DialogFooter className="flex  items-center flex-center">
-                  <Label className="m-2 p-2 ">API KEY</Label>
-                  <Input
-                    className="m-2 p-2 "
-                    type="text"
-                    id="offlineInput"
-                    name="apiKey"
-                    onChange={handleApIKeyChange}
-                    // Add additional attributes and event handlers as needed
-                  />
-                  <Button
-                    onClick={() => checkApiKeyOffline()}
-                    className="m-2 p-2 "
-                  >
-                    Submit
-                  </Button>
-                </DialogFooter>
-              </>
-            ) : (
-              <></>
-            )}
-            {/* <Button
-            onClick={() => handleSubscription(app)}
-            className="w-1/2 mb-2"
-          >
-            subscribe
-          </Button> */}
-
-            {/* {isOnline ? (
-            <>
-              {" "}
-              {subscriptionInfo.valid ? (
-                <Dialog open={open} onOpenChange={setOpen}>
-                  <DialogTrigger asChild>
-                    <Button variant="outline">Open</Button>
-                  </DialogTrigger>
-                  <DialogContent className="sm:max-w-[425px]">
-                    <DialogHeader>
-                      <DialogTitle>confirm Open ing the app?</DialogTitle>
-                    </DialogHeader>
-
-                    <DialogFooter>
-                      <Button
-                        className="bg-emerald-500"
-                        onClick={() => OpenApp()}
-                        type="submit"
-                      >
-                        Open
-                      </Button>
-                    </DialogFooter>
-                  </DialogContent>
-                </Dialog>
-              ) : (
-                <Dialog open={open} onOpenChange={setOpen}>
-                  <DialogTrigger asChild>
-                    <Button variant="outline">Subscribe</Button>
-                  </DialogTrigger>
-                  <DialogContent className="sm:max-w-[425px]">
-                    <DialogHeader>
-                      <DialogTitle>Select subscription Dates</DialogTitle>
-                      <DialogDescription>
-                        Please select the start and end dates for your
-                        subscription.
-                      </DialogDescription>
-                    </DialogHeader>
-                    <div className="grid gap-4 py-4">
-                      <div className="grid grid-cols-4 items-center gap-4">
-                        <Label className="text-right" htmlFor="start-date">
-                          Start Date
-                        </Label>
-                        <Input
-                          onChange={handleChange}
-                          className="col-span-3"
-                          id="startDate"
-                          type="date"
-                          name="startDate"
-                          value={formData.startDate}
-                        />
-                      </div>
-                      <div className="grid grid-cols-4 items-center gap-4">
-                        <Label className="text-right" htmlFor="end-date">
-                          End Date
-                        </Label>
-                        <Input
-                          onChange={handleChange}
-                          className="col-span-3"
-                          id="endDate"
-                          name="endDate"
-                          value={formData.endDate}
-                          type="date"
-                        />
-                      </div>
-                    </div>
-                    <DialogFooter>
-                      <Button onClick={() => GenerateApiKey()} type="submit">
-                        Generate ApiKey
-                      </Button>
-                    </DialogFooter>
-                  </DialogContent>
-                </Dialog>
-              )}{" "}
-            </>
-          ) : (
-            // Render an input box when the app is offline
+          <>
             <DialogFooter className="flex  items-center flex-center">
               <Label className="m-2 p-2 ">API KEY</Label>
               <Input
@@ -550,11 +236,8 @@ const AppInfo = () => {
                 Submit
               </Button>
             </DialogFooter>
-          )} */}
-          </Card>
-        ) : (
-          <>Loading</>
-        )}
+          </>
+        </Card>
       </div>
     </div>
   );

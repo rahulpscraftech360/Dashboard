@@ -17,8 +17,8 @@ const Home = () => {
   const navigate = useNavigate();
   const [allApps, setApps] = useState(null);
 
-  const handleSubscription = (app) => {
-    navigate(`/apps/${app.id}`);
+  const handleSubscription = () => {
+    navigate(`/apps/${1}`);
     console.log("subscribe", app);
   };
   const getApps = async () => {
@@ -45,23 +45,21 @@ const Home = () => {
           <h1 className="font-semibold text-lg md:text-2xl">Applications</h1>
         </div>
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {allApps?.map((app, i) => (
-            <Card key={i}>
-              <CardHeader>
-                <CardTitle>{app.appName}</CardTitle>
-                <CardDescription>{app.description}</CardDescription>
-              </CardHeader>
-              <CardContent>Relevant data for App </CardContent>
-              <div className="flex w-full justify-center item-center">
-                <Button
-                  onClick={() => handleSubscription(app)}
-                  className="w-full m-2 "
-                >
-                  OPEN
-                </Button>
-              </div>
-            </Card>
-          ))}
+          <Card key={1}>
+            <CardHeader>
+              <CardTitle>My Super App</CardTitle>
+              <CardDescription>description</CardDescription>
+            </CardHeader>
+            <CardContent>Relevant data for App </CardContent>
+            <div className="flex w-full justify-center item-center">
+              <Button
+                onClick={() => handleSubscription()}
+                className="w-full m-2 "
+              >
+                OPEN
+              </Button>
+            </div>
+          </Card>
         </div>
       </main>
     </div>
